@@ -8,7 +8,7 @@ interface AuthState {
   loading: boolean;
   user: User | null;
   label: Label | null;
-  refreshLabel: () => Promise<void>;
+  refreshLabel: (knownLabel?: Label) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthState | null>(null);
@@ -18,8 +18,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [label, setLabel] = useState<Label | null>(null);
 
-  const refreshLabel = useCallback(async () => {
-    const l = await getMyLabel().catch(() => null);
+  const refreshLabel = useCallback(async (knownLabel?: Label) => {
+    if (knownLabel) { setLabel(knownLabel); return; }
+    const timeout = new Promise<null>((resolve) => setTimeout(() => resolve(null), 5000));
+    const l = await Promise.race([getMyLabel().catch(() => null), timeout]);
     if (l) setLabel(l);
   }, []);
 

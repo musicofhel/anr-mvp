@@ -84,13 +84,13 @@ function Onboarding({ userId }: { userId: string }) {
     setError('');
     setLoading(true);
     try {
-      await createProfileAndLabel(
+      const newLabel = await createProfileAndLabel(
         userId,
         username,
         labelName,
         specialty || undefined,
       );
-      await refreshLabel();
+      await refreshLabel(newLabel);
     } catch (err: any) {
       setError(err.message || 'Something went wrong');
     } finally {

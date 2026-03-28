@@ -60,7 +60,7 @@ export function SubmitPage() {
 
       // Submit to leaderboard
       await submitBand(band.id);
-      await refreshLabel();
+      refreshLabel(); // fire-and-forget, don't block redirect
 
       setSuccess(true);
       setTimeout(() => navigate('/'), 1500);
