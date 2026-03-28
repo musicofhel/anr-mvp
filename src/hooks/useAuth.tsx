@@ -24,15 +24,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
+    // Safety timeout — never stay on loading screen forever
+    const timeout = setTimeout(() => setLoading(false), 5000);
+
     // Check initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
       if (session?.user) {
-        getMyLabel().then(setLabel).catch(() => {}).finally(() => setLoading(false));
+        getMyLabel()
+          .then(setLabel)
+          .catch(() => {})
+          .finally(() => { clearTimeout(timeout); setLoading(false); });
       } else {
+        clearTimeout(timeout);
         setLoading(false);
       }
-    });
+    }).catch(() => { clearTimeout(timeout); setLoading(false); });
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
